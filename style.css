@@ -1,0 +1,299 @@
+:root {
+    --bg-color: #0f172a;
+    --surface-color: #1e293b;
+    --text-color: #f8fafc;
+    --text-muted: #94a3b8;
+    --running-color: #06b6d4;
+    --running-glow: rgba(6, 182, 212, 0.4);
+    --strength-color: #f59e0b;
+    --strength-glow: rgba(245, 158, 11, 0.4);
+    --danger-color: #ef4444;
+    --font-family: 'Outfit', sans-serif;
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    overflow: hidden; /* App like feel */
+}
+
+#app {
+    width: 100%;
+    max-width: 480px; /* Mobile width constraint */
+    height: 100%;
+    position: relative;
+    background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Common Layouts */
+.screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    animation: fadeIn 0.4s ease-out;
+}
+
+.screen-header {
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+p.subtitle {
+    color: var(--text-muted);
+    font-size: 1rem;
+}
+
+/* Landing Page */
+.menu-grid {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 1.5rem;
+    height: 100%;
+}
+
+.menu-card {
+    background: rgba(30, 41, 59, 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+    z-index: 0;
+}
+
+.menu-card:active {
+    transform: scale(0.98);
+}
+
+.menu-card h3 {
+    font-size: 1.75rem;
+    z-index: 1;
+    margin-top: 1rem;
+}
+
+.menu-card .icon {
+    font-size: 3rem;
+    z-index: 1;
+}
+
+.card-running:hover, .card-running:active {
+    border-color: var(--running-color);
+    box-shadow: 0 0 20px var(--running-glow);
+}
+.card-strength:hover, .card-strength:active {
+    border-color: var(--strength-color);
+    box-shadow: 0 0 20px var(--strength-glow);
+}
+
+.card-running .icon { color: var(--running-color); }
+.card-strength .icon { color: var(--strength-color); }
+
+/* Buttons */
+.btn {
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    outline: none;
+    width: 100%;
+    margin-top: auto;
+}
+
+.btn-start {
+    background: var(--text-color);
+    color: var(--bg-color);
+}
+.btn-start:active { transform: scale(0.98); opacity: 0.9; }
+
+.btn-back {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid rgba(255,255,255,0.1);
+    margin-top: 1rem;
+    padding: 0.75rem;
+}
+
+/* Inputs */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.input-field {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    font-size: 1.25rem;
+    font-family: var(--font-family);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-field:focus {
+    border-color: var(--strength-color);
+}
+
+/* Running Mode */
+.timer-display {
+    font-size: 4rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    margin: 2rem 0;
+    text-shadow: 0 0 20px var(--running-glow);
+}
+
+.lap-button {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: var(--running-color);
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 auto 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 30px var(--running-glow);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    user-select: none;
+}
+
+.lap-button span {
+    font-size: 3rem;
+    display: block;
+}
+
+.lap-button:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 10px var(--running-glow);
+}
+
+.stats-row {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(255,255,255,0.05);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 2rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: block;
+}
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Strength Mode */
+.workout-active-view {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.countdown-circle {
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    border: 8px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    position: relative;
+    color: var(--strength-color);
+}
+
+.countdown-highlight {
+    position: absolute;
+    top: -8px; left: -8px; right: -8px; bottom: -8px;
+    border-radius: 50%;
+    border: 8px solid var(--strength-color);
+    border-top-color: transparent; /* Simple loading effect or just solid */
+    /* In JS we can make this an SVG for a proper progress ring, but simple border is fine for now */
+    border: 8px solid var(--strength-color);
+    clip-path: circle(50%); /* Placeholder for ring */
+}
+
+/* Utilities */
+.hidden { display: none !important; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
