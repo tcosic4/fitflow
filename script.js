@@ -65,9 +65,41 @@ function formatTime(ms) {
     return `${m}:${s}`;
 }
 
+function formatDuration(seconds) {
+    const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${s}`;
+}
+
+// WAKE LOCK
+let wakeLock = null;
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => {
+                console.log('Wake Lock released');
+            });
+            console.log('Wake Lock active');
+        }
+    } catch (err) {
+        console.error(`${err.name}, ${err.message}`);
+    }
+}
+async function releaseWakeLock() {
+    if (wakeLock !== null) {
+        await wakeLock.release();
+        wakeLock = null;
+    }
+}
+
+
 // VIEWS
 
 function renderLanding() {
+    releaseWakeLock(); // Release lock when back to menu
+
     app.innerHTML = `
         <div class="screen">
             <div class="screen-header">
@@ -94,6 +126,7 @@ function startRunningMode() {
     state.mode = 'running';
     state.running.elapsed = 0;
     state.running.laps = 0;
+    requestWakeLock();
     renderRunning();
 }
 
@@ -199,10 +232,10 @@ function initStrengthWorkout() {
     state.strength.totalSets = sets;
     state.strength.restTime = rest;
     state.strength.currentSet = 0;
-    state.strength.timeLeft = rest;
     state.strength.isActive = true;
 
     playStartSound();
+    requestWakeLock();
     renderStrengthActive();
     startRestTimer();
 }
@@ -220,7 +253,7 @@ function renderStrengthActive() {
 
             <div class="workout-active-view">
                 <div class="countdown-circle">
-                    <span id="rest-countdown">${state.strength.timeLeft}</span>
+                    <span id="rest-countdown" style="font-size: 2.5rem;">${formatDuration(state.strength.timeLeft || state.strength.restTime)}</span>
                 </div>
 
                 <div class="stats-row" style="width:100%">
@@ -241,26 +274,34 @@ function renderStrengthActive() {
 }
 
 function startRestTimer() {
-    state.strength.timeLeft = state.strength.restTime;
-    updateStrengthDisplay();
+    const endTime = Date.now() + (state.strength.restTime * 1000);
+
+    // Initial display update
+    updateStrengthDisplay(state.strength.restTime);
 
     clearInterval(state.strength.interval);
     state.strength.interval = setInterval(() => {
-        state.strength.timeLeft--;
-        updateStrengthDisplay();
+        const now = Date.now();
+        const diff = endTime - now;
+        const secondsLeft = Math.ceil(diff / 1000);
 
-        if (state.strength.timeLeft <= 0) {
+        if (secondsLeft >= 0) {
+            updateStrengthDisplay(secondsLeft);
+        }
+
+        if (secondsLeft <= 0) {
             handleRestComplete();
         }
-    }, 1000);
+    }, 100); // Check more frequently 
 }
 
-function updateStrengthDisplay() {
+function updateStrengthDisplay(seconds) {
     const el = document.getElementById('rest-countdown');
-    if (el) el.innerText = state.strength.timeLeft;
+    if (el) el.innerText = formatDuration(seconds);
 }
 
 function handleRestComplete() {
+    clearInterval(state.strength.interval); // Ensure timer stops before sound/alert
     playRestFinishSound();
     state.strength.currentSet++;
 
@@ -269,7 +310,6 @@ function handleRestComplete() {
 
     if (state.strength.currentSet >= state.strength.totalSets) {
         // Workout Complete
-        clearInterval(state.strength.interval);
         setTimeout(() => {
             alert("Workout Complete!");
             renderLanding();
